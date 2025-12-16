@@ -1,0 +1,19 @@
+/* Global spacing and typography tweaks */
+body { background: #f7f9fb; }
+
+.nav-avatar { width: 28px; height: 28px; object-fit: cover; }
+
+/* Cards */
+.blog-card img { width: 100%; height: 100%; }
+.object-fit-cover { object-fit: cover; }
+
+/* Preserve newlines for content */
+.pre-line { white-space: pre-wrap; }
+
+/* Comment avatars */
+.list-group-item img.rounded-circle { object-fit: cover; }
+
+/* Optional: reduce container width on very large screens */
+@media (min-width: 1400px) {
+  .container { max-width: 1140px; }
+}
