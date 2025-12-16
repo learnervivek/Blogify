@@ -1,5 +1,6 @@
 const {Schema, model}= require('mongoose')
 const {createHmac, randomBytes}=require("crypto")
+const jwt = require('jsonwebtoken');
 
     const userSchema= new Schema({
         fullName:{
@@ -45,7 +46,7 @@ userSchema.pre("save" ,async function (){
  this.password = hashedPassword;
 })
 
-userSchema.static("matchPassword", async function(email, password){
+userSchema.static("matchPasswordAndGenerateToken", async function(email, password){
     const user = await this.findOne({email});
     if(!user) throw new Error('User not found!');
     
@@ -57,7 +58,15 @@ userSchema.static("matchPassword", async function(email, password){
 
     if(hashedPassword !== userProvidedHash) throw new Error('Incorrect Password');
 
-    return {...user._doc, password:undefined, salt:undefined};
+    const token = jwt.sign({
+        _id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        profileImageURL: user.profileImageURL,
+        role: user.role
+    }, 'secret-key');
+    
+    return token;
 });
 
 
