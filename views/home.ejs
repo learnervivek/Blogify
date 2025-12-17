@@ -3,47 +3,80 @@
 
 <head>
     <%- include('./partials/head.ejs') %>
-        <title>HomePage</title>
+    <title>Blogify - Share Your Stories</title>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <%- include('./partials/nav.ejs') %>
 
-                <div class="container py-4">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                                <h2 class="h4 m-0">Latest Blogs</h2>
-                                <% if (locals.user) { %>
-                                    <a class="btn btn-primary btn-sm" href="/blog/add-new">New Post</a>
-                                <% } %>
-                        </div>
-                        <div class="row g-4">
-                                <% blogs.forEach(blog=> { %>
-                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-                                            <div class="card h-100 shadow-sm blog-card">
-                                                <div class="ratio ratio-16x9 bg-light">
-                                                    <img src="<%= blog.coverImageURL %>" class="object-fit-cover rounded-top" alt="cover">
-                                                </div>
-                                                <div class="card-body d-flex flex-column">
-                                                        <h5 class="card-title text-truncate" title="<%= blog.title %>"><%= blog.title %></h5>
-                                                        <p class="card-text text-muted small mb-3">
-                                                            <%= (blog.body || '').replace(/\n/g,' ').slice(0, 120) %><%= (blog.body && blog.body.length>120) ? '…' : '' %>
-                                                        </p>
-                                                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                                                            <a href="/blog/<%= blog._id %>" class="btn btn-outline-primary btn-sm">Read more</a>
-                                                        </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                <% }) %>
-                        </div>
+    <!-- Hero Section -->
+    <div class="hero-section py-5 text-white">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">Welcome to Blogify</h1>
+            <p class="lead mb-4">Discover inspiring stories, insights, and ideas from our community of writers</p>
+            <% if (!locals.user) { %>
+                <a class="btn btn-light btn-lg" href="/user/signup">Get Started</a>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-5 flex-grow-1">
+        <div class="mb-5">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h2 class="h3 fw-bold m-0">
+                        <i class="bi bi-star-fill text-warning me-2"></i>Latest Blogs
+                    </h2>
+                    <p class="text-muted mb-0 mt-1">Explore the newest posts from our community</p>
                 </div>
+                <% if (locals.user) { %>
+                    <a class="btn btn-primary" href="/blog/add-new">
+                        <i class="bi bi-plus-circle me-2"></i>New Post
+                    </a>
+                <% } %>
+            </div>
 
+            <% if (blogs.length === 0) { %>
+                <div class="alert alert-info text-center py-5">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>No blogs yet!</strong> Be the first to share your story.
+                </div>
+            <% } else { %>
+                <div class="row g-4">
+                    <% blogs.forEach(blog => { %>
+                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                            <div class="card h-100 shadow-sm blog-card border-0">
+                                <div class="ratio ratio-16x9 bg-light overflow-hidden">
+                                    <img src="<%= blog.coverImageURL %>" class="object-fit-cover" alt="<%= blog.title %>">
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title fw-semibold text-dark">
+                                        <span class="text-truncate" title="<%= blog.title %>"><%= blog.title %></span>
+                                    </h5>
+                                    <p class="card-text text-muted small flex-grow-1">
+                                        <%- ((blog.body || '').replace(/\n/g,' ').replace(/<[^>]*>/g, '').slice(0, 100)) %><%= ((blog.body || '').replace(/<[^>]*>/g, '').length > 100) ? '...' : '' %>
+                                    </p>
+                                    <div class="d-flex align-items-center justify-content-between mt-3 pt-3 border-top">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            <%= new Date(blog.createdAt).toLocaleDateString() %>
+                                        </small>
+                                        <a href="/blog/<%= blog._id %>" class="btn btn-sm btn-outline-primary">
+                                            Read <i class="bi bi-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+    </div>
 
-
-
-
-        <!-- <%= JSON.stringify(blogs) %> -->
-        <%- include('./partials/scripts.ejs') %>
+    <%- include('./partials/footer.ejs') %>
+    <%- include('./partials/scripts.ejs') %>
 </body>
 
 </html>

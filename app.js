@@ -14,7 +14,7 @@ const userRoute = require("./routes/user");
 const blogRoute = require("./routes/blog");
 
 const app = express();
-const PORT = process.env.PORT||8000;
+const PORT = process.env.PORT || 8000;
 
 mongoose
   .connect(process.env.MONGO_URL)

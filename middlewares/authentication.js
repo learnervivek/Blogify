@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 function validateToken(token) {
-  return jwt.verify(token, 'secret-key');
+  return jwt.verify(token, "secret-key");
 }
 
 function checkForAuthenticationCookie(cookieName) {
@@ -12,14 +12,17 @@ function checkForAuthenticationCookie(cookieName) {
     }
     try {
       const userPayload = validateToken(tokenCookieValue);
-      if (userPayload?.profileImageURL?.startsWith('/public/')) {
-        userPayload.profileImageURL = userPayload.profileImageURL.replace('/public/', '/');
+      if (userPayload?.profileImageURL?.startsWith("/public/")) {
+        userPayload.profileImageURL = userPayload.profileImageURL.replace(
+          "/public/",
+          "/"
+        );
       }
       req.user = userPayload;
     } catch (error) {}
     return next();
   };
 }
-module.exports={
-    checkForAuthenticationCookie,
-}
+module.exports = {
+  checkForAuthenticationCookie,
+};

@@ -9,48 +9,150 @@
 <body>
     <%- include('./partials/nav.ejs') %>
 
-    <div class="container py-4">
-        <h1 class="display-6 fw-semibold mb-3"><%= blog.title %></h1>
-        <div class="d-flex align-items-center gap-2 text-muted mb-4">
-            <img src="<%= blog.createdBy.profileImageURL %>" alt="avatar" class="rounded-circle" width="36" height="36">
-            <span class="fw-medium"><%= blog.createdBy.fullName %></span>
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb-nav" aria-label="breadcrumb">
+        <div class="container">
+            <nav class="breadcrumb">
+                <ol>
+                    <li><a href="/"><i class="bi bi-house-fill"></i> Home</a></li>
+                    <li><span class="breadcrumb-separator">/</span></li>
+                    <li class="active"><span class="blog-breadcrumb-title"><%= blog.title.substring(0, 40) %><% if (blog.title.length > 40) { %>...<% } %></span></li>
+                </ol>
+            </nav>
         </div>
-        <div class="ratio ratio-16x9 mb-3">
-            <img src="<%= blog.coverImageURL %>" class="object-fit-cover rounded" alt="cover">
-        </div>
-        <div class="pre-line fs-6"><%= blog.body %></div>
+    </nav>
+
+    <div class="blog-hero-banner">
+        <img src="<%= blog.coverImageURL %>" alt="cover" class="blog-hero-image">
+        <div class="blog-hero-overlay"></div>
     </div>
 
-    <div class="container py-3">
-        <h2 class="h5 mb-3">Comments</h2>
-        <% if (locals.user) { %>
-        <form action="/blog/comment/<%= blog._id %>" method="post" class="mb-3">
-            <div class="row g-2 align-items-center">
-                <div class="col-12 col-md">
-                    <input type="text" name="content" class="form-control" placeholder="Write a comment..." required />
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-primary" type="submit">Post</button>
-                </div>
-            </div>
-        </form>
-        <% } %>
-
-        <div class="list-group">
-            <% (comments || []).forEach(comment => { %>
-            <div class="list-group-item d-flex gap-3 align-items-start">
-                <img src="<%= comment.createdBy.profileImageURL %>" class="rounded-circle flex-shrink-0" width="32" height="32" alt="avatar">
-                <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <strong><%= comment.createdBy.fullName %></strong>
+    <div class="container blog-content-container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Blog Header -->
+                <div class="blog-header mb-4">
+                    
+                    <!-- Author Info & Actions -->
+                    <div class="blog-meta d-flex align-items-center justify-content-between flex-wrap gap-2 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <img src="<%= blog.createdBy.profileImageURL %>" alt="avatar" class="blog-author-avatar rounded-circle">
+                            <div>
+                                <p class="blog-author-name mb-0"><%= blog.createdBy.fullName %></p>
+                                <div class="d-flex gap-2 align-items-center flex-wrap">
+                                    <p class="blog-publish-date mb-0">
+                                        <i class="bi bi-calendar3"></i> 
+                                        <%= new Date(blog.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                    </p>
+                                    <span class="reading-time">
+                                        <i class="bi bi-clock"></i> 
+                                        <% const words = blog.body.split(/\s+/).length; const readTime = Math.ceil(words / 200); %>
+                                        <%= readTime %> min read
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
+                            <% if (locals.user && String(locals.user._id) === String(blog.createdBy._id)) { %>
+                            <a class="btn btn-sm btn-outline-primary blog-action-btn" href="/blog/<%= blog._id %>/edit">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            <form action="/blog/<%= blog._id %>/delete" method="post" onsubmit="return confirm('Are you sure? This cannot be undone.');" style="display: inline;">
+                                <button class="btn btn-sm btn-outline-danger blog-action-btn" type="submit">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                            <% } %>
+                        </div>
                     </div>
-                    <div class="pre-line mt-1"><%= comment.content %></div>
+                </div>
+
+                <!-- Blog Content -->
+                <div class="blog-body mb-5">
+                    <div class="blog-text"><%- blog.body %></div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="blog-comments-section">
+                    <h2 class="comments-title mb-4">
+                        <i class="bi bi-chat-left-quote"></i> Comments
+                    </h2>
+                    
+                    <% if (locals.user) { %>
+                    <!-- Comment Form -->
+                    <div class="comment-form-wrapper mb-4">
+                        <form action="/blog/comment/<%= blog._id %>" method="post" class="comment-form">
+                            <div class="d-flex gap-2 align-items-end">
+                                <img src="<%= locals.user.profileImageURL %>" alt="avatar" class="comment-form-avatar rounded-circle">
+                                <div class="flex-grow-1">
+                                    <input type="text" name="content" class="form-control comment-input" placeholder="Share your thoughts..." required />
+                                </div>
+                                <button class="btn btn-primary btn-sm comment-submit-btn" type="submit">Post</button>
+                            </div>
+                        </form>
+                    </div>
+                    <% } %>
+
+                    <!-- Comments List -->
+                    <div class="comments-list">
+                        <% if (comments && comments.length > 0) { %>
+                            <% comments.forEach((comment, index) => { %>
+                            <div class="comment-item <%= index !== comments.length - 1 ? 'border-bottom pb-3 mb-3' : '' %>">
+                                <div class="d-flex gap-3">
+                                    <img src="<%= comment.createdBy.profileImageURL %>" class="comment-avatar rounded-circle flex-shrink-0" alt="avatar">
+                                    <div class="flex-grow-1">
+                                        <div class="comment-header mb-2">
+                                            <strong class="comment-author"><%= comment.createdBy.fullName %></strong>
+                                            <span class="comment-time text-muted ms-2" style="font-size: 0.85rem;">
+                                                <%= new Date(comment.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                                            </span>
+                                        </div>
+                                        <p class="comment-text mb-0"><%= comment.content %></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+                        <% } else { %>
+                        <div class="empty-state text-center py-4">
+                            <i class="bi bi-chat-left" style="font-size: 2.5rem; color: #ccc;"></i>
+                            <p class="text-muted mt-2">No comments yet. Be the first to share your thoughts!</p>
+                        </div>
+                        <% } %>
+                    </div>
                 </div>
             </div>
-            <% }) %>
-            <% if (!comments || comments.length === 0) { %>
-            <div class="list-group-item text-muted">No comments yet. Be the first to comment!</div>
-            <% } %>
+
+            <!-- Sidebar (Optional) -->
+            <div class="col-lg-4">
+                <div class="blog-sidebar">
+                    <div class="sidebar-card">
+                        <h5 class="mb-3">
+                            <i class="bi bi-info-circle"></i> About Author
+                        </h5>
+                        <div class="text-center mb-3">
+                            <img src="<%= blog.createdBy.profileImageURL %>" alt="avatar" class="author-sidebar-avatar rounded-circle mb-2">
+                            <h6><%= blog.createdBy.fullName %></h6>
+                        </div>
+                        <p class="text-muted small">A passionate blogger sharing insights and stories.</p>
+                    </div>
+
+                    <div class="sidebar-card">
+                        <h5 class="mb-3">
+                            <i class="bi bi-tags"></i> Article Info
+                        </h5>
+                        <div class="info-item">
+                            <span class="info-label">Published:</span>
+                            <span class="info-value"><%= new Date(blog.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Comments:</span>
+                            <span class="info-value"><%= comments ? comments.length : 0 %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

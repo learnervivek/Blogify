@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
     <%- include('./partials/head.ejs') %>
-    <title>Add new Blog</title>
+    <title>Edit Blog</title>
     <!-- Quill Rich Text Editor -->
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet" />
     <style>
-        .add-blog-container {
+        .edit-blog-container {
             background: white;
             border-radius: 12px;
             padding: 2.5rem;
             box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
             margin: 2rem 0;
+            border-top: 4px solid #667eea;
         }
 
-        .add-blog-container h1 {
+        .edit-blog-container h1 {
             color: #2d3748;
             font-weight: 700;
             margin-bottom: 2rem;
@@ -23,7 +24,7 @@
             gap: 0.7rem;
         }
 
-        .add-blog-container h1 i {
+        .edit-blog-container h1 i {
             color: #667eea;
             font-size: 1.8rem;
         }
@@ -96,7 +97,7 @@
             margin-top: 2rem;
         }
 
-        .btn-submit {
+        .btn-save {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
             color: white;
@@ -108,12 +109,12 @@
             font-size: 1rem;
         }
 
-        .btn-submit:hover {
+        .btn-save:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
         }
 
-        .file-preview {
+        .current-image {
             margin-top: 0.75rem;
             padding: 0.75rem;
             background: #f7f9fb;
@@ -123,7 +124,7 @@
         }
 
         @media (max-width: 768px) {
-            .add-blog-container {
+            .edit-blog-container {
                 padding: 1.5rem;
                 margin: 1rem 0;
             }
@@ -136,29 +137,28 @@
                 flex-direction: column;
             }
 
-            .btn-submit {
+            .btn-save {
                 width: 100%;
             }
         }
     </style>
 </head>
-
 <body>
     <%- include('./partials/nav.ejs') %>
     
     <div class="container">
-        <div class="add-blog-container">
+        <div class="edit-blog-container">
             <h1>
-                <i class="bi bi-pencil-fill"></i> Create New Blog
+                <i class="bi bi-pencil-square"></i> Edit Blog
             </h1>
 
-            <form action="/blog" method="post" enctype="multipart/form-data">
+            <form action="/blog/<%= blog._id %>/edit" method="post" enctype="multipart/form-data">
                 <!-- Title Field -->
                 <div class="form-group">
                     <label for="title" class="form-label">
                         <i class="bi bi-heading"></i> Blog Title
                     </label>
-                    <input type="text" class="form-control" id="title" name="title" placeholder="Enter an engaging title..." required>
+                    <input type="text" class="form-control" id="title" name="title" value="<%= blog.title %>" required>
                 </div>
 
                 <!-- Cover Image Field -->
@@ -166,8 +166,10 @@
                     <label for="coverImage" class="form-label">
                         <i class="bi bi-image"></i> Cover Image
                     </label>
-                    <input type="file" class="form-control" id="coverImage" name="coverImage" accept="image/*" required>
-                    <div class="file-preview">Choose an attractive cover image for your blog</div>
+                    <input type="file" class="form-control" id="coverImage" name="coverImage" accept="image/*">
+                    <div class="current-image">
+                        <strong>Current Cover:</strong> <%= blog.coverImageURL %>
+                    </div>
                 </div>
 
                 <!-- Rich Text Editor -->
@@ -181,10 +183,10 @@
 
                 <!-- Form Actions -->
                 <div class="form-actions">
-                    <button type="submit" class="btn-submit">
-                        <i class="bi bi-check-circle"></i> Publish Blog
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-check-circle"></i> Save Changes
                     </button>
-                    <a href="/" class="btn btn-outline-secondary" style="padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600;">
+                    <a href="/blog/<%= blog._id %>" class="btn btn-outline-secondary" style="padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600;">
                         <i class="bi bi-x-circle"></i> Cancel
                     </a>
                 </div>
@@ -196,7 +198,7 @@
     <script>
         const quill = new Quill('#editor', {
             theme: 'snow',
-            placeholder: 'Write your blog content here... You can use formatting tools above!',
+            placeholder: 'Edit your blog content here... You can use formatting tools above!',
             modules: {
                 toolbar: [
                     ['bold', 'italic', 'underline', 'strike'],
@@ -213,6 +215,12 @@
             }
         });
 
+        // Load existing content
+        document.addEventListener('DOMContentLoaded', function() {
+            const existingContent = `<%- blog.body %>`;
+            quill.root.innerHTML = existingContent;
+        });
+
         // Set content to hidden textarea before form submission
         document.querySelector('form').addEventListener('submit', function() {
             const content = quill.root.innerHTML;
@@ -222,5 +230,4 @@
 
     <%- include('./partials/scripts.ejs') %>
 </body>
-
 </html>

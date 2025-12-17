@@ -1,0 +1,93 @@
+<footer class="footer-custom mt-auto">
+    <div class="footer-divider"></div>
+    
+    <div class="container py-4">
+        <div class="row g-4 mb-3">
+            <!-- Brand Section -->
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="footer-section">
+                    <h5 class="fw-bold mb-2">
+                        <i class="bi bi-journal-text me-2" style="color: #667eea;"></i>Blogify
+                    </h5>
+                    <p class="text-muted small" style="font-size: 0.85rem; line-height: 1.5;">Empowering voices, sharing stories.</p>
+                </div>
+            </div>
+
+            <!-- Quick Links Section -->
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <div class="footer-section">
+                    <h6 class="fw-bold mb-3 footer-heading">
+                        <i class="bi bi-link-45deg me-1"></i>Explore
+                    </h6>
+                    <ul class="list-unstyled footer-links-sm">
+                        <li><a href="/" class="text-muted text-decoration-none">Home</a></li>
+                        <% if (locals.user) { %>
+                            <li><a href="/blog/add-new" class="text-muted text-decoration-none">Create</a></li>
+                        <% } else { %>
+                            <li><a href="/user/signup" class="text-muted text-decoration-none">Join Now</a></li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Support Section -->
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <div class="footer-section">
+                    <h6 class="fw-bold mb-3 footer-heading">
+                        <i class="bi bi-question-circle me-1"></i>Support
+                    </h6>
+                    <ul class="list-unstyled footer-links-sm">
+                        <li><a href="#" class="text-muted text-decoration-none">Help Center</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Connect Section -->
+            <div class="col-lg-5 col-md-6 col-sm-6">
+                <div class="footer-section">
+                    <h6 class="fw-bold mb-3 footer-heading">
+                        <i class="bi bi-chat-dots me-1"></i>Connect & Subscribe
+                    </h6>
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <a href="https://x.com/thevivek_gupta" class="footer-social-btn-sm" title="Twitter">
+                            <i class="bi bi-twitter"></i>
+                        </a>
+                        <a href="https://github.com/learnervivek" class="footer-social-btn-sm" title="GitHub">
+                            <i class="bi bi-github"></i>
+                        </a>
+                        <a href="http://linkedin.com/in/learnervivek" class="footer-social-btn-sm" title="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <!-- <a href="#" class="footer-social-btn-sm" title="Discord">
+                            <i class="bi bi-discord"></i>
+                        </a> -->
+                        <div class="input-group input-group-sm footer-email-group">
+                            <input type="email" class="form-control footer-email-input" placeholder="Email">
+                            <button class="btn btn-primary footer-subscribe-btn-sm" type="button">Join</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-3 border-muted">
+
+        <div class="row align-items-center g-2">
+            <div class="col-md-6 mb-1 mb-md-0">
+                <p class="text-muted m-0 footer-copyright">
+                    &copy; <%= new Date().getFullYear() %> <strong>Blogify</strong>. All rights reserved.
+                </p>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-md-end gap-2 flex-wrap footer-bottom-links">
+                    <a href="#" class="text-muted text-decoration-none">Privacy Policy</a>
+                    <span class="text-muted">•</span>
+                    <a href="#" class="text-muted text-decoration-none">Terms of Service</a>
+                    <span class="text-muted">•</span>
+                    <a href="#" class="text-muted text-decoration-none">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
