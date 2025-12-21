@@ -4,6 +4,7 @@ const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const util = require("util");
 
 const Blog = require("./models/blog");
 
@@ -40,5 +41,22 @@ app.get("/", async (req, res) => {
 
 app.use("/user", userRoute);
 app.use("/blog", blogRoute);
+
+// Central error handler to avoid opaque [object Object] responses
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", util.inspect(err, { depth: 4 }));
+  const message = err?.message || "Something went wrong";
+
+  // If avatar/profile update fails, render the profile page with the error
+  if (req.originalUrl.startsWith("/user/profile")) {
+    return res.status(500).render("profile", {
+      user: req.user || {},
+      success: null,
+      error: message,
+    });
+  }
+
+  return res.status(500).send(message);
+});
 
 app.listen(PORT, () => console.log(`Server Started at PORT: ${PORT}`));

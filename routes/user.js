@@ -3,6 +3,26 @@ const jwt = require("jsonwebtoken");
 const User=require('../models/user')
 const router=Router();
 const { uploadAvatar } = require('../config/cloudinary');
+const util = require('util');
+
+function formatError(err) {
+    if (!err) return 'Unable to update profile. Please try again.';
+    if (typeof err === 'string') return err;
+    // Common Cloudinary / multer shapes
+    if (err?.message && typeof err.message === 'string' && err.message !== '[object Object]') return err.message;
+    if (err?.error?.message) return err.error.message;
+    if (err?.response?.body?.error?.message) return err.response.body.error.message;
+    if (err?.http_code && err?.message) return `${err.http_code}: ${err.message}`;
+    try {
+        const json = JSON.stringify(err);
+        if (json && json !== '{}') return json;
+    } catch (_) {}
+    try {
+        const inspected = util.inspect(err, { depth: 2 });
+        if (inspected) return inspected;
+    } catch (_) {}
+    return 'Unable to update profile. Please try again.';
+}
 
 function requireAuth(req, res, next) {
     if (!req.user) return res.redirect('/user/signin');
@@ -60,7 +80,16 @@ router.get('/profile', requireAuth, async (req, res) => {
     });
 });
 
-router.post('/profile', requireAuth, uploadAvatar.single('avatar'), async (req, res) => {
+function withUploadSingle(upload, fieldName) {
+    return (req, res, next) => {
+        upload.single(fieldName)(req, res, (err) => {
+            if (err) return next(err);
+            next();
+        });
+    };
+}
+
+router.post('/profile', requireAuth, withUploadSingle(uploadAvatar, 'avatar'), async (req, res) => {
     try {
         const updates = {
             bio: req.body.bio || '',
@@ -84,11 +113,12 @@ router.post('/profile', requireAuth, uploadAvatar.single('avatar'), async (req, 
 
         return res.redirect('/user/profile?success=1');
     } catch (error) {
+        console.error('Avatar/profile update failed:', util.inspect(error, { depth: 4 }));
         const fallbackUser = req.user || {};
         return res.render('profile', {
             user: fallbackUser,
             success: null,
-            error: 'Unable to update profile. Please try again.',
+            error: formatError(error),
         });
     }
 });

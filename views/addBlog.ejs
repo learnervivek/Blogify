@@ -152,6 +152,13 @@
                 <i class="bi bi-pencil-fill"></i> Create New Blog
             </h1>
 
+                        <% if (typeof error !== 'undefined' && error) { %>
+                            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <%= error %>
+                            </div>
+                        <% } %>
+
             <form action="/blog" method="post" enctype="multipart/form-data">
                 <!-- Title Field -->
                 <div class="form-group">

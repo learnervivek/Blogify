@@ -24,7 +24,8 @@ const avatarStorage = new CloudinaryStorage({
   params: {
     folder: 'avatars',
     allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    transformation: [{ width: 500, height: 500, crop: 'limit', gravity: 'face' }],
+    // Use a face-aware square crop; 'face' gravity requires a crop mode like 'fill'
+    transformation: [{ width: 500, height: 500, crop: 'fill', gravity: 'face' }],
   },
 });
 

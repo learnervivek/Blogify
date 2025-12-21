@@ -6,6 +6,20 @@ const Blog = require("../models/blog");
 const Comment = require("../models/comment");
 const { uploadBlogCover } = require("../config/cloudinary");
 
+function requireAuth(req, res, next) {
+  if (!req.user) return res.redirect('/user/signin');
+  next();
+}
+
+function withUploadSingle(upload, fieldName) {
+  return (req, res, next) => {
+    upload.single(fieldName)(req, res, (err) => {
+      if (err) return next(err);
+      next();
+    });
+  };
+}
+
 router.get("/add-new", (req, res) => {
   return res.render("addBlog", {
     user: req.user,
@@ -66,7 +80,7 @@ router.get("/:id", async (req, res) => {
   });
 });
 
-router.post("/comment/:blogId", async (req, res) => {
+router.post("/comment/:blogId", requireAuth, async (req, res) => {
   await Comment.create({
     content: req.body.content,
     blogId: req.params.blogId,
@@ -98,15 +112,23 @@ router.post('/:id/edit', uploadBlogCover.single('coverImage'), async (req, res) 
   return res.redirect(`/blog/${req.params.id}`);
 });
 
-router.post("/", uploadBlogCover.single("coverImage"), async (req, res) => {
-  const { title, body } = req.body;
-  const blog = await Blog.create({
-    body,
-    title,
-    createdBy: req.user._id,
-    coverImageURL: req.file.path,
-  });
-  return res.redirect(`/blog/${blog._id}`);
+router.post("/", requireAuth, withUploadSingle(uploadBlogCover, "coverImage"), async (req, res) => {
+  try {
+    const { title, body } = req.body;
+    const blog = await Blog.create({
+      body,
+      title,
+      createdBy: req.user._id,
+      coverImageURL: req.file ? req.file.path : null,
+    });
+    return res.redirect(`/blog/${blog._id}`);
+  } catch (err) {
+    console.error('Failed to create blog', err);
+    return res.status(500).render('addBlog', {
+      user: req.user,
+      error: err?.message || 'Could not create the blog. Please try again.',
+    });
+  }
 });
   // Delete a blog (owner only)
   router.post('/:id/delete', async (req, res) => {
