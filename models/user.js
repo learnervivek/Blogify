@@ -24,6 +24,11 @@ const userSchema = new Schema(
       type: String,
       default: "/default.jpg",
     },
+    bio: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     role: {
       type: String,
       enum: ["USER", "ADMIN"],
@@ -72,6 +77,7 @@ userSchema.static(
         email: user.email,
         fullName: user.fullName,
         profileImageURL,
+        bio: user.bio || "",
         role: user.role,
       },
       "secret-key"

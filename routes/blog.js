@@ -1,22 +1,10 @@
 const { Router } = require("express");
 
-const multer = require("multer");
 const router = Router();
-const path = require("path");
 
 const Blog = require("../models/blog");
 const Comment = require("../models/comment");
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.resolve(`./public/uploads/`));
-  },
-  filename: function (req, file, cb) {
-    const fileName = `${Date.now()}-${file.originalname}`;
-    cb(null, fileName);
-  },
-});
-const upload = multer({ storage: storage });
+const { uploadBlogCover } = require("../config/cloudinary");
 
 router.get("/add-new", (req, res) => {
   return res.render("addBlog", {
@@ -69,8 +57,8 @@ router.get("/:id", async (req, res) => {
       }
     });
   }
-  console.log("blog", blog);
-  console.log("comments", comments);
+  // console.log("blog", blog);
+  // console.log("comments", comments);
   return res.render("blog", {
     user: req.user,
     blog,
@@ -88,7 +76,7 @@ router.post("/comment/:blogId", async (req, res) => {
 });
 
 // Update blog (owner only; cover image optional)
-router.post('/:id/edit', upload.single('coverImage'), async (req, res) => {
+router.post('/:id/edit', uploadBlogCover.single('coverImage'), async (req, res) => {
   if (!req.user) {
     return res.status(401).redirect('/user/signin');
   }
@@ -103,20 +91,20 @@ router.post('/:id/edit', upload.single('coverImage'), async (req, res) => {
     body: req.body.body,
   };
   if (req.file) {
-    updates.coverImageURL = `/uploads/${req.file.filename}`;
+    updates.coverImageURL = req.file.path;
   }
 
   await Blog.findByIdAndUpdate(req.params.id, updates, { new: true });
   return res.redirect(`/blog/${req.params.id}`);
 });
 
-router.post("/", upload.single("coverImage"), async (req, res) => {
+router.post("/", uploadBlogCover.single("coverImage"), async (req, res) => {
   const { title, body } = req.body;
   const blog = await Blog.create({
     body,
     title,
     createdBy: req.user._id,
-    coverImageURL: `/uploads/${req.file.filename}`,
+    coverImageURL: req.file.path,
   });
   return res.redirect(`/blog/${blog._id}`);
 });
